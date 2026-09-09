@@ -1,0 +1,70 @@
+1006/C
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        int left = 0;
+        int right = n - 1;
+        long leftSum = 0;
+        long rightSum = 0;
+        long ans = 0;
+        while (left <= right) {
+            if (leftSum <= rightSum) {
+                leftSum += arr[left];
+                left++;
+            } else {
+                rightSum += arr[right];
+                right--;
+            }
+            if (leftSum == rightSum) {
+                ans = leftSum;
+            }
+        }
+        System.out.println(ans);
+        sc.close();
+    }
+}
+-----------------------
+1399/C
+
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int t = sc.nextInt();
+        while (t-- > 0) {
+            int n = sc.nextInt();
+            int[] freq = new int[n + 1];
+            for (int i = 0; i < n; i++) {
+                int x = sc.nextInt();
+                freq[x]++;
+            }
+            int ans = 0;
+            for (int sum = 2; sum <= 2 * n; sum++) {
+
+                int teams = 0;
+                for (int x = 1; x <= sum / 2; x++) {
+
+                    int y = sum - x;
+
+                    if (y > n) {
+                        continue;
+                    }
+                    if (x == y) {
+                        teams += freq[x] / 2;
+                    } else {
+                        teams += Math.min(freq[x], freq[y]);
+                    }
+                }
+                ans = Math.max(ans, teams);
+            }
+            System.out.println(ans);
+        }
+        sc.close();
+    }
+}
