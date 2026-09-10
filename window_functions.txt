@@ -1,0 +1,55 @@
+1. Employee sequence by salary - ROW_NUMBER() Write a query to display emp_name,
+department, salary, and a unique row number for all employees ordered by salary from
+highest to lowest. Use ROW_NUMBER().
+select (row_number() over (order by salary desc)) as s_no, emp_name,department,salary
+from employees;
+2. Salary rank across the company - RANK() Write a query to rank all employees by salary in
+descending order. Employees with the same salary must receive the same rank, and the next
+rank should be skipped.
+select (rank() over (order by salary desc)) as rank_no, emp_name,department,salary from
+employees;
+3. Salary rank without gaps - DENSE_RANK() Write a query to rank all employees by salary in
+descending order, but do not leave gaps in the ranking when two or more employees have
+the same salary.
+select (dense_rank() over (order by salary desc)) as s_no, emp_name,department,salary
+from employees;
+4. Row number inside each department - ROW_NUMBER() Write a query to assign a row
+number to employees separately inside each department. Within every department, the
+highest-paid employee must receive row number 1.
+select (row_number() over (partition by department order by salary desc)) as s_no,
+emp_name,department,salary from employees;
+5. Department-wise salary rank - RANK() Write a query to rank employees by salary within
+each department. If two employees in the same department have the same salary, they
+must share the same rank.
+select (rank() over (partition by department order by salary desc)) as rank_no,
+emp_name,department,salary from employees;
+6. Top 2 distinct salaries in each department - DENSE_RANK() Write a query to return only
+employees who belong to the top 2 distinct salary levels in their department. Use
+DENSE_RANK() in a subquery or CTE.
+select x.rank_no,x.emp_id,x.emp_name,x.department from (
+select (dense_rank() over (partition by department order by salary desc)) as
+rank_no,emp_id,emp_name,department from employees)
+as x where x.rank_no<=2;
+7. Highest-paid employee name per department - FIRST_VALUE() Write a query that displays
+every employee along with the name of the highest-paid employee in that employee's
+department. Use FIRST_VALUE().
+select (first_value(emp_name) over (partition by department order by salary desc))
+ as e_name, emp_name,department,salary from employees;
+8. Lowest-paid employee name per department - LAST_VALUE() Write a query that displays
+every employee along with the name of the lowest-paid employee in that department. Use
+LAST_VALUE() with an explicit window frame so the result is correct for all rows.
+ select emp_name,department,salary, (last_value(emp_name) over (partition by
+department order by salary ))as e_name from employees;
+9. Compare first and last salary in each department Write a query that displays emp_name,
+department, salary, highest salary in the department, and lowest salary in the department
+using FIRST_VALUE() and LAST_VALUE(). Order the window by salary DESC and use the
+correct frame.
+select emp_name, department,salary, (first_value(salary) over (partition by department
+order by salary desc))
+as highest,(last_value(salary) over (partition by department order by salary desc)) as lowest
+from employees;
+10. Find the 2nd highest distinct salary employees - DENSE_RANK() Write a query to return
+all employees whose salary is the second-highest distinct salary in the entire company. Do
+not use LIMIT. Use DENSE_RANK()
+select x.emp_name,x.salary from (select (dense_rank() over(order by salary desc))
+as rank_no,emp_name,salary from employees) as x where x.rank_no=2;
