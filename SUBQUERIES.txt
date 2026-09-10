@@ -1,0 +1,99 @@
+1. Employees Above Their Department Average Display emp_id, emp_name, dept_id, and
+salary for employees whose salary is greater than the average salary of their own
+department. Do not use JOIN. Focus: correlated subquery with AVG().
+-->
+select e.emp_id,e.emp_name,e.dept_id,e.salary from employees e where e.salary > (select
+avg(salary) from employees where dept_id=e.dept_id);
+
+2. Highest Paid Employee(s) in Every Department Display the highest-paid employee or
+employees from each department. If multiple employees in the same department share the
+highest salary, return all of them. Focus: correlated subquery with MAX().
+-->select e.emp_id,e.emp_name,e.dept_id,e.salary from employees e where salary = (select
+max(salary) from employees where dept_id=e.dept_id);
+
+3. Second Highest Distinct Salary Find the second-highest distinct salary in the company
+without using LIMIT, OFFSET, or JOIN. Focus: nested scalar subquery.
+-->select max(salary) from employees where salary < (select max(salary) from employees);
+
+4. Employees Receiving the Second Highest Distinct Salary Display the employee name and
+salary of every employee whose salary equals the second-highest distinct salary in the
+company. Focus: nested subqueries and duplicate-safe result.
+-->select emp_id,emp_name,salary from employees where salary =
+(select max(salary) from employees where salary < (select max(salary) from employees));
+
+5. Employees Earning More Than Their Manager Display employees whose salary is greater
+than the salary of their own manager. Employees without a manager should not appear. Do
+not use a self JOIN. Focus: correlated scalar subquery against the same table.
+-->select emp_id,emp_name,salary from employees e where
+salary > (select salary from employees where emp_id=e.manager_id);
+
+6. Managers Who Earn Less Than At Least One Direct Report Display employees who are
+managers and whose salary is less than at least one employee reporting directly to them.
+Focus: correlated subquery with EXISTS or ANY.
+--->select emp_id,emp_name,salary from employees e where salary < any (select salary from
+employees where manager_id=e.emp_id);
+
+7. Departments Whose Average Salary Is Above Company Average Display the department
+IDs whose average employee salary is greater than the overall average salary of all
+employees. Focus: aggregate query with a scalar subquery in HAVING.
+select distinct dept_id from employees group by dept_id having avg(salary) > (select
+avg(salary) from employees);
+
+8. Employees in Departments Whose Average Salary Is Above Company Average Display all
+employees who belong to departments whose departmental average salary is greater than
+the overall company average salary. Do not use JOIN. Focus: nested multiple-row subquery.
+select emp_id,emp_name,dept_id from employees where dept_id in
+(select dept_id from employees group by dept_id having avg(salary)> (select avg(salary)
+from employees));
+
+
+9. Employees Earning More Than Every Employee in HR Display employees whose salary is
+greater than the salary of every employee in the HR department. The department ID must
+be obtained using a subquery from the departments table. Focus: nested subquery with ALL.
+select emp_id, emp_name, salary from employees where salary >
+all(select salary from employees d where dept_id in (select dept_id from departments
+where dept_name='HR'));
+
+
+10. Employees Earning More Than At Least One Research Employee Display employees
+whose salary is greater than at least one employee working in the Research department.
+Obtain the Research department ID through a subquery. Focus: nested subquery with ANY.
+select emp_id, emp_name, salary from employees where salary >
+any(select salary from employees d where dept_id in (select dept_id from departments
+where dept_name='Research'));
+
+11. Departments Having No Projects Display dept_id and dept_name for departments that
+do not have any project listed in the projects table. Solve using a subquery only. Focus: NOT
+EXISTS correlated subquery.
+select dept_id, dept_name from departments d where dept_id in(select dept_id from
+projects where dept_id = d.dept_id);
+
+12. Employees Belonging to Departments With More Than One Project Display all employees
+who belong to a department that has more than one project. Do not use JOIN. Focus:
+correlated / grouped subquery with COUNT().
+select emp_id,emp_name,dept_id from employees where dept_id in (select dept_id from
+projects group by dept_id having count(project_id)>1); 
+
+13. Employees in the Department of the Highest-Budget Project Display all employees who
+work in the department that owns the project having the maximum budget. If multiple
+projects tie for maximum budget, employees from all matching departments should be
+returned. Focus: nested multi-row subquery with MAX().
+-->select emp_id,emp_name from employees where dept_id in (select dept_id from projects
+where budget = (select max(budget) from projects));
+
+
+14. Employee(s) With Salary Closest to Company Average Display the employee or
+employees whose salary has the smallest absolute difference from the company average
+salary. Do not use ORDER BY ... LIMIT and do not use JOIN. Focus: nested aggregate
+subqueries using AVG(), ABS(), and MIN().
+-->select emp_id,emp_name,salary from employees where abs(salary - (select avg(salary) from
+employees))= (select min(abs(salary-(select avg(salary) from employees))) from employees);
+
+15. Departments Whose Top Salary Exceeds Every Manager Salary in That Department
+Display department IDs where the maximum employee salary in that department is greater
+than the salary of every employee in the same department who is acting as a manager of at
+least one other employee. Focus: advanced correlated and nested subqueries with MAX(),
+ALL / NOT EXISTS.
+-->SELECT dept_id FROM employees e GROUP BY dept_id HAVING MAX(salary) > ALL (
+SELECT m.salary FROM employees m WHERE m.dept_id = e.dept_id AND m.emp_id IN (
+SELECT DISTINCT manager_id FROM employees WHERE manager_id IS NOT NULL));
